@@ -30,7 +30,8 @@
   border-radius: 1em;
   width: 50vw;
   background-color: white;
-  height: 50vh;
+  min-height: 50vh;
+  max-height: auto;
 }
 
 .input {
@@ -48,6 +49,8 @@
   text-align: center;
   border-radius: 1em;
   width: 70vw;
+  min-height: 50vh;
+  max-height: auto;
 }
 }
 textarea {
@@ -95,6 +98,18 @@ textarea {
   background-color: white;
   margin-top: 10px;
 }
+@media only screen and (max-width: 600px){
+  .post_wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    text-align: center;
+    border-radius: 1em;
+    width: 70vw;
+    background-color: white;
+    margin-top: 10px;
+  }
+}
 .post-header {
   display: flex;
   border-bottom: #0092dd;
@@ -124,4 +139,13 @@ textarea {
   color:#282c34;
   font-size: 16px;
   text-align: left;
+}
+.page{
+  color: #282c34;
+  font-size: 12px;
+}
+.button_wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-content: space-between;
 }

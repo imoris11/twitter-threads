@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
+import TwitterLogin from 'react-twitter-auth';
 
 export const Form = () => {
-    const [text, setText] = useState('');
-    const [sections, setSections ] = useState([]);
-    const [isVisible, setShowForm] = useState(true);
+    const [text, setText] = useState(`Getting accepted into the Rhodes Scholarship Program is seemingly competitive and challenging, just like life itself. And my life has been proliferated with challenges that I have successfully completed. I am Richard Igbiriki. My love for problem-solving, drive for self-improvement, and passion for giving back to the community are my primary reasons for applying to the Rhodes Scholarship. Also because I love a good challenge. I believe our growth is largely determined by the challenges we conquer in order to achieve our goals; my goal being a graduate degree at the University of Oxford.
+    `);
+    const [ sections, setSections ] = useState([]);
+    const [ isVisible, setShowForm ] = useState(true);
+    const [ showPageNumber, setShowPageNumber ] = useState(true);
     const handleSubmit = (e) => {
         e.preventDefault();
         let sections = [];
-        let temp = '';
         const words = text.split(" ");
+        const charLimit = showPageNumber ? 235 : 240;
+        let temp = '';
         words.forEach((word) => {
-            if (word.length + temp.length <= 240){
+            if (word.length + temp.length <= charLimit){
                 temp += ` ${word}`;
             }else{
                 sections.push(temp);
@@ -18,11 +22,20 @@ export const Form = () => {
             }
         });
         sections.push(temp);
-        setShowForm(false);
-        setSections(sections);
+        updateSections(sections);
     }
     const handleChange = (e) => {
         setText(e.target.value);
+    }
+    const updateSections = (sections) => {
+        if (showPageNumber) {
+            sections = sections.map((sentence, i )=> {
+                sentence  = `${i+1}/${sections.length})${sentence}`;
+                return sentence;
+            });
+        }
+        setSections(sections);
+        setShowForm(false);
     }
     return (
         <div>
@@ -31,20 +44,53 @@ export const Form = () => {
              <div className="form_wrapper">
             <form onSubmit={handleSubmit} className="form">
                 <textarea onChange={handleChange} className="input" value={text} rows={10} placeholder="Enter thread text" />
-                <button type="submit" className="button">Generate</button>
+                <div className='button_wrapper'>
+                <div>
+                    <input onChange={()=> setShowPageNumber(!showPageNumber)} checked={showPageNumber} type="checkbox" name="number" />
+                    <p className="page">Show Page Number (1/x)</p>
+                </div>
+                     <button  type="submit" className="button">Generate</button>
+                </div>
             </form>
             </div>
         </div>: 
-        <Threads showForm={() => setShowForm(true)} sections={sections} />
+        <Threads showForm={() => setShowForm(true)} sections={sections} showPageNumber={showPageNumber} />
     }
     </div>
     )
 }
 
 const Threads = (props) => {
+    const [ loading, setLoading ] = useState(false);
    const handleShowForm = () => {
         props.showForm();
     }
+    const onSuccess = (response) => {
+        setLoading(true);
+        response.json().then(body => {
+          const data = {
+              posts: props.sections
+          }
+          fetch('https://thread-generator-api.herokuapp.com/api/v1/status',
+          {
+              method: 'POST',
+              body: JSON.stringify(data),
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          }).then(res => res.json()).then(data => {
+            setLoading(false);
+            alert("Thread successfully tweeted!")
+            handleShowForm();
+          }).catch(error => {
+              alert(error);
+          })
+        });
+      }
+    
+     const onFailed = (error) => {
+        alert("An error occurred");
+      }
         return (
             <div>
                 <h1 className="header">Your Thread</h1>
@@ -64,7 +110,16 @@ const Threads = (props) => {
             )}
                
                 <p className="second-button" onClick={handleShowForm}>Return To Form</p>&nbsp;
-                <p className="button" onClick={handleShowForm}>Tweet</p>
+                <TwitterLogin loginUrl="https://thread-generator-api.herokuapp.com/api/v1/auth/twitter"
+                      onFailure={onFailed}
+                      onSuccess={onSuccess}
+                      requestTokenUrl="https://thread-generator-api.herokuapp.com/api/v1/auth/twitter/reverse"
+                      showIcon={true}
+                      disabled={loading}
+                      style={{backgroundColor:'transparent', borderWidth:0}}
+                      >
+                    {loading ? <p className="button" >Tweeting...</p> : <p className="button" >Tweet</p>}
+             </TwitterLogin>
             </div>
         )
 }

@@ -96,6 +96,7 @@ const Threads = (props) => {
     
      const onFailed = (error) => {
         alert("An error occurred");
+        console.log(error);
       }
         return (
             <div>
@@ -121,6 +122,7 @@ const Threads = (props) => {
                       onSuccess={onSuccess}
                       showIcon={true}
                       disabled={loading}
+                      requestTokenUrl="https://thread-generator-api.herokuapp.com/api/v1/auth/twitter/reverse"
                       style={{backgroundColor:'transparent', borderWidth:0}}
                       >
                     {loading ? <p className="button" >Tweeting...</p> : <p className="button" >Tweet</p>}

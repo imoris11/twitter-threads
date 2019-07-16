@@ -2,28 +2,34 @@ import React, { useState } from 'react';
 import TwitterLogin from 'react-twitter-auth';
 
 export const Form = () => {
-    const [text, setText] = useState(`Getting accepted into the Rhodes Scholarship Program is seemingly competitive and challenging, just like life itself. And my life has been proliferated with challenges that I have successfully completed. I am Richard Igbiriki. My love for problem-solving, drive for self-improvement, and passion for giving back to the community are my primary reasons for applying to the Rhodes Scholarship. Also because I love a good challenge. I believe our growth is largely determined by the challenges we conquer in order to achieve our goals; my goal being a graduate degree at the University of Oxford.
-    `);
+    const [text, setText] = useState('');
     const [ sections, setSections ] = useState([]);
     const [ isVisible, setShowForm ] = useState(true);
     const [ showPageNumber, setShowPageNumber ] = useState(true);
+    
     const handleSubmit = (e) => {
         e.preventDefault();
         let sections = [];
-        const words = text.split(" ");
-        const charLimit = showPageNumber ? 235 : 240;
+        const sentences = text.split(". "); //Split into sentences
+        const charLimit = showPageNumber ? 275 : 280; //Assume thread ends in 10s
         let temp = '';
-        words.forEach((word) => {
-            if (word.length + temp.length <= charLimit){
-                temp += ` ${word}`;
+        sentences.forEach((sentence) => {
+            if (sentence.length + temp.length <= charLimit){
+                temp += ` ${sentence}. `;
             }else{
                 sections.push(temp);
-                temp = ` ${word}`;
+                temp = ` ${sentence}.`;
             }
         });
+        const char = temp[temp.length-1];
+        //edge case remove duplicate '.'
+        if (char === '.') {
+            temp = temp.substring(0, temp.length-1);
+        }
         sections.push(temp);
         updateSections(sections);
     }
+
     const handleChange = (e) => {
         setText(e.target.value);
     }
@@ -113,7 +119,6 @@ const Threads = (props) => {
                 <TwitterLogin loginUrl="https://thread-generator-api.herokuapp.com/api/v1/auth/twitter"
                       onFailure={onFailed}
                       onSuccess={onSuccess}
-                      requestTokenUrl="https://thread-generator-api.herokuapp.com/api/v1/auth/twitter/reverse"
                       showIcon={true}
                       disabled={loading}
                       style={{backgroundColor:'transparent', borderWidth:0}}

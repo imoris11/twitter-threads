@@ -75,7 +75,9 @@ const Threads = (props) => {
         setLoading(true);
         response.json().then(body => {
           const data = {
-              posts: props.sections
+              posts: props.sections,
+              oauth_token: body.oauth_token,
+              oauth_token_secret: body.oauth_token_secret
           }
           fetch('https://thread-generator-api.herokuapp.com/api/v1/status',
           {
@@ -90,8 +92,10 @@ const Threads = (props) => {
             handleShowForm();
           }).catch(error => {
               alert(error);
+              setLoading(false);
           })
-        });
+        
+       });
       }
     
      const onFailed = (error) => {
